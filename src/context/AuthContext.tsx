@@ -69,19 +69,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePoints = (points: number) => {
     if (user) {
-      console.log(`Updating user points: ${user.points} + ${points} = ${user.points + points}`);
-      const updatedUser = { ...user, points: user.points + points };
+      // Ensure we're working with numbers
+      const currentPoints = Number(user.points);
+      const pointsToAdd = Number(points);
+      const newTotal = currentPoints + pointsToAdd;
+      
+      console.log(`Updating user points: ${currentPoints} + ${pointsToAdd} = ${newTotal}`);
+      
+      // Create a new user object with updated points
+      const updatedUser = { 
+        ...user, 
+        points: newTotal 
+      };
+      
+      // Save to localStorage and update state
       saveUser(updatedUser);
     }
   };
 
   const completeLevel = (levelId: number) => {
     if (user) {
-      const updatedUser = { 
-        ...user, 
-        levelsCompleted: [...new Set([...user.levelsCompleted, levelId])] 
-      };
-      saveUser(updatedUser);
+      // Only add to completed levels if not already there
+      if (!user.levelsCompleted.includes(levelId)) {
+        const updatedUser = { 
+          ...user, 
+          levelsCompleted: [...new Set([...user.levelsCompleted, levelId])] 
+        };
+        saveUser(updatedUser);
+        console.log(`Level ${levelId} completed and saved to user profile`);
+      }
     }
   };
 

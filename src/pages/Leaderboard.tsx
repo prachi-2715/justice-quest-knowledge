@@ -23,11 +23,19 @@ const Leaderboard = () => {
   const { user } = useAuth();
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [userPoints, setUserPoints] = useState<number>(0);
+
+  // Track user points separately to force re-renders
+  useEffect(() => {
+    if (user) {
+      setUserPoints(user.points);
+    }
+  }, [user, user?.points]);
 
   // Function to update leaderboard data
   const updateLeaderboard = () => {
     if (user) {
-      console.log("Updating leaderboard with user points:", user.points);
+      console.log("Updating leaderboard with user points:", userPoints);
       
       const combinedData = [...sampleLeaderboard];
       
@@ -39,7 +47,7 @@ const Leaderboard = () => {
         combinedData[existingUserIndex] = {
           id: user.id,
           name: user.name,
-          points: user.points,
+          points: userPoints, // Use tracked points to ensure latest value
           levelsCompleted: user.levelsCompleted.length,
           avatar: user.avatar
         };
@@ -48,7 +56,7 @@ const Leaderboard = () => {
         combinedData.push({
           id: user.id,
           name: user.name,
-          points: user.points,
+          points: userPoints, // Use tracked points to ensure latest value
           levelsCompleted: user.levelsCompleted.length,
           avatar: user.avatar
         });
@@ -69,12 +77,23 @@ const Leaderboard = () => {
     updateLeaderboard();
   }, [user]);
 
-  // Add a useEffect to reload leaderboard when user.points changes
+  // Update leaderboard when user points change
   useEffect(() => {
-    if (user) {
-      updateLeaderboard();
+    updateLeaderboard();
+  }, [userPoints, user?.levelsCompleted]);
+
+  // Refresh leaderboard data every time this component renders
+  useEffect(() => {
+    // Force a refresh by getting the latest user data from localStorage
+    const savedUser = localStorage.getItem('justiceUser');
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      if (parsedUser.points !== userPoints) {
+        setUserPoints(parsedUser.points);
+      }
     }
-  }, [user?.points, user?.levelsCompleted]);
+    updateLeaderboard();
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
@@ -111,7 +130,7 @@ const Leaderboard = () => {
                 </div>
                 <div className="flex items-center">
                   <Star className="h-5 w-5 text-justice-orange mr-1" />
-                  <span className="font-bold text-lg">{user.points}</span>
+                  <span className="font-bold text-lg">{userPoints}</span>
                 </div>
               </div>
             </div>

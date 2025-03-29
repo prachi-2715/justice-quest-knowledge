@@ -10,10 +10,19 @@ import {
   ListOrdered,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [userPoints, setUserPoints] = useState(0);
+
+  // Update userPoints when user changes
+  useEffect(() => {
+    if (user) {
+      setUserPoints(user.points);
+    }
+  }, [user, user?.points]);
 
   const navigation = [
     { name: "Game Map", href: "/map", icon: Star },
@@ -55,11 +64,11 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8 border-2 border-white">
               <AvatarImage src={user?.avatar || ""} alt={user?.name} />
-              <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
             <div className="hidden md:block">
               <div className="text-sm font-medium">{user?.name}</div>
-              <div className="text-xs">{user?.points} pts</div>
+              <div className="text-xs">{userPoints} pts</div>
             </div>
           </div>
           <Button
