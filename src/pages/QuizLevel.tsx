@@ -22,6 +22,7 @@ const QuizLevel = () => {
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [earnedPoints, setEarnedPoints] = useState<number>(0);
   
   const level = levels.find(l => l.id === Number(levelId));
   
@@ -57,7 +58,14 @@ const QuizLevel = () => {
     setIsCorrect(correct);
     
     if (correct) {
+      // Calculate points per correct answer (dividing level points by number of questions)
+      const pointsPerQuestion = Math.floor(level.pointsToEarn / level.questions.length);
+      // Update local score for this session
       setScore(score + 1);
+      // Update earned points for this session
+      setEarnedPoints(earnedPoints + pointsPerQuestion);
+      // Update user's points immediately for each correct answer
+      updatePoints(pointsPerQuestion);
     }
     
     updateQuestionStats(correct);
@@ -73,13 +81,14 @@ const QuizLevel = () => {
       const levelCompleted = score >= Math.ceil(level.questions.length / 2); // Pass if at least half correct
       
       if (levelCompleted) {
-        updatePoints(level.pointsToEarn);
+        // Instead of giving all points at once, we already updated points for each correct answer
+        // Just mark the level as completed now
         completeLevel(level.id);
         markLevelCompleted(level.id);
         
         toast({
           title: "Level Completed!",
-          description: `Congratulations! You earned ${level.pointsToEarn} points!`,
+          description: `Congratulations! You earned ${earnedPoints} points!`,
           variant: "default"
         });
       } else {
@@ -238,7 +247,7 @@ const QuizLevel = () => {
                   <div>
                     <h3 className="font-medium text-justice-green">Level Completed!</h3>
                     <p className="text-muted-foreground">
-                      Congratulations! You've earned {level.pointsToEarn} points and unlocked the next level.
+                      Congratulations! You've earned {earnedPoints} points and unlocked the next level.
                     </p>
                   </div>
                 </div>
@@ -265,6 +274,7 @@ const QuizLevel = () => {
                 setIsAnswered(false);
                 setIsCorrect(false);
                 setScore(0);
+                setEarnedPoints(0);
                 setShowResults(false);
               }}
             >

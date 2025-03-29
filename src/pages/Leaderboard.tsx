@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 
@@ -63,6 +62,30 @@ const Leaderboard = () => {
     }
   }, [user]);
 
+  // Add a useEffect to reload leaderboard when user.points changes
+  useEffect(() => {
+    if (user) {
+      // Update the leaderboard when user points change
+      const updatedData = [...leaderboardData];
+      const userIndex = updatedData.findIndex(entry => entry.id === user.id);
+      
+      if (userIndex !== -1) {
+        updatedData[userIndex] = {
+          ...updatedData[userIndex],
+          points: user.points,
+          levelsCompleted: user.levelsCompleted.length
+        };
+        
+        // Resort and update ranks
+        const sortedData = updatedData.sort((a, b) => b.points - a.points);
+        setLeaderboardData(sortedData);
+        
+        const newRank = sortedData.findIndex(entry => entry.id === user.id) + 1;
+        setUserRank(newRank);
+      }
+    }
+  }, [user?.points, user?.levelsCompleted]);
+
   return (
     <div className="container mx-auto p-4">
       <div className="mb-6">
@@ -86,6 +109,7 @@ const Leaderboard = () => {
               <div className="flex-1 flex items-center justify-between">
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
+                    <AvatarImage src={user?.avatar || ""} alt={user?.name} />
                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
@@ -128,6 +152,7 @@ const Leaderboard = () => {
                 </div>
                 
                 <Avatar className="h-16 w-16 border-4 border-background mb-3">
+                  <AvatarImage src={player.avatar || ""} alt={player.name} />
                   <AvatarFallback className="text-xl">{player.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 
@@ -181,6 +206,7 @@ const Leaderboard = () => {
                 </div>
                 
                 <Avatar className="h-8 w-8 mr-3">
+                  <AvatarImage src={player.avatar || ""} alt={player.name} />
                   <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 
