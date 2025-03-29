@@ -47,8 +47,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const saveUser = (updatedUser: User) => {
-    localStorage.setItem('justiceUser', JSON.stringify(updatedUser));
-    setUser(updatedUser);
+    // Ensure all user properties are correctly typed
+    const sanitizedUser = {
+      ...updatedUser,
+      points: Number(updatedUser.points),
+      questionsAnswered: Number(updatedUser.questionsAnswered),
+      correctAnswers: Number(updatedUser.correctAnswers)
+    };
+    
+    localStorage.setItem('justiceUser', JSON.stringify(sanitizedUser));
+    setUser(sanitizedUser);
   };
 
   const login = (name: string) => {
@@ -84,6 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Save to localStorage and update state
       saveUser(updatedUser);
+      
+      // Force update localStorage
+      const userString = JSON.stringify(updatedUser);
+      localStorage.setItem('justiceUser', userString);
+      
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('userPointsUpdated', { 
+        detail: { points: newTotal }
+      }));
     }
   };
 
@@ -97,6 +114,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         saveUser(updatedUser);
         console.log(`Level ${levelId} completed and saved to user profile`);
+        
+        // Dispatch a custom event to notify other components
+        window.dispatchEvent(new CustomEvent('userLevelCompleted', { 
+          detail: { levelId, levelsCompleted: updatedUser.levelsCompleted }
+        }));
       }
     }
   };
@@ -109,6 +131,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         correctAnswers: user.correctAnswers + (correct ? 1 : 0)
       };
       saveUser(updatedUser);
+      
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('userStatsUpdated'));
     }
   };
 

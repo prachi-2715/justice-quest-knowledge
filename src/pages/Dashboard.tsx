@@ -4,16 +4,67 @@ import { useGame } from "@/context/GameContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, Star, User, ListOrdered, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { levels } = useGame();
+  const [userPoints, setUserPoints] = useState(0);
+  const [completedLevels, setCompletedLevels] = useState<number[]>([]);
+  
+  // Initialize user data
+  useEffect(() => {
+    if (user) {
+      setUserPoints(Number(user.points));
+      setCompletedLevels(user.levelsCompleted);
+    }
+  }, [user]);
+  
+  // Listen for point updates
+  useEffect(() => {
+    const handlePointsUpdate = (e: CustomEvent) => {
+      console.log("Dashboard: Points updated event received", e.detail.points);
+      setUserPoints(Number(e.detail.points));
+    };
+    
+    const handleLevelComplete = (e: CustomEvent) => {
+      console.log("Dashboard: Level completed event received", e.detail.levelsCompleted);
+      setCompletedLevels(e.detail.levelsCompleted);
+    };
+    
+    const handleStatsUpdate = () => {
+      // Refresh user data from localStorage
+      const savedUser = localStorage.getItem('justiceUser');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUserPoints(Number(parsedUser.points));
+        setCompletedLevels(parsedUser.levelsCompleted);
+      }
+    };
+    
+    window.addEventListener('userPointsUpdated', handlePointsUpdate as EventListener);
+    window.addEventListener('userLevelCompleted', handleLevelComplete as EventListener);
+    window.addEventListener('userStatsUpdated', handleStatsUpdate);
+    
+    // On component mount, check localStorage directly
+    const savedUser = localStorage.getItem('justiceUser');
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      setUserPoints(Number(parsedUser.points));
+      setCompletedLevels(parsedUser.levelsCompleted);
+    }
+    
+    return () => {
+      window.removeEventListener('userPointsUpdated', handlePointsUpdate as EventListener);
+      window.removeEventListener('userLevelCompleted', handleLevelComplete as EventListener);
+      window.removeEventListener('userStatsUpdated', handleStatsUpdate);
+    };
+  }, []);
   
   if (!user) return null;
   
   const totalLevels = levels.length;
-  const completedLevels = user.levelsCompleted.length;
-  const progressPercent = (completedLevels / totalLevels) * 100;
+  const progressPercent = (completedLevels.length / totalLevels) * 100;
   
   const accuracy = user.questionsAnswered > 0
     ? Math.round((user.correctAnswers / user.questionsAnswered) * 100)
@@ -21,7 +72,7 @@ const Dashboard = () => {
   
   // Level completion cards
   const levelStatus = levels.map(level => {
-    const isCompleted = user.levelsCompleted.includes(level.id);
+    const isCompleted = completedLevels.includes(level.id);
     return {
       id: level.id,
       name: level.name,
@@ -52,7 +103,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Completed:</span>
-                <span className="font-medium">{completedLevels}/{totalLevels} levels</span>
+                <span className="font-medium">{completedLevels.length}/{totalLevels} levels</span>
               </div>
               <Progress value={progressPercent} className="h-2" />
               <div className="text-xs text-muted-foreground text-right">
@@ -73,7 +124,7 @@ const Dashboard = () => {
           <CardContent>
             <div className="flex flex-col items-center justify-center h-16">
               <span className="text-3xl font-bold text-justice-orange">
-                {user.points}
+                {userPoints}
               </span>
               <span className="text-sm text-muted-foreground">
                 points earned
@@ -183,7 +234,7 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {completedLevels > 0 && (
+            {completedLevels.length > 0 && (
               <div className="flex flex-col items-center p-4 border rounded-lg bg-justice-green/5 border-justice-green/20">
                 <div className="w-16 h-16 rounded-full bg-justice-green/10 flex items-center justify-center mb-2">
                   <Star className="h-8 w-8 text-justice-green" />
@@ -203,7 +254,7 @@ const Dashboard = () => {
               </div>
             )}
             
-            {user.points >= 100 && (
+            {userPoints >= 100 && (
               <div className="flex flex-col items-center p-4 border rounded-lg bg-justice-orange/5 border-justice-orange/20">
                 <div className="w-16 h-16 rounded-full bg-justice-orange/10 flex items-center justify-center mb-2">
                   <Star className="h-8 w-8 text-justice-orange" />

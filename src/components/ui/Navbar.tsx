@@ -20,9 +20,41 @@ const Navbar = () => {
   // Update userPoints when user changes
   useEffect(() => {
     if (user) {
-      setUserPoints(user.points);
+      setUserPoints(Number(user.points));
+      
+      // Also check localStorage directly to ensure we have latest data
+      const savedUser = localStorage.getItem('justiceUser');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUserPoints(Number(parsedUser.points));
+      }
     }
   }, [user, user?.points]);
+  
+  // Listen for point updates
+  useEffect(() => {
+    const handlePointsUpdate = (e: CustomEvent) => {
+      console.log("Navbar: Points updated event received", e.detail.points);
+      setUserPoints(Number(e.detail.points));
+    };
+    
+    const handleStatsUpdate = () => {
+      // Refresh user data from localStorage
+      const savedUser = localStorage.getItem('justiceUser');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUserPoints(Number(parsedUser.points));
+      }
+    };
+    
+    window.addEventListener('userPointsUpdated', handlePointsUpdate as EventListener);
+    window.addEventListener('userStatsUpdated', handleStatsUpdate);
+    
+    return () => {
+      window.removeEventListener('userPointsUpdated', handlePointsUpdate as EventListener);
+      window.removeEventListener('userStatsUpdated', handleStatsUpdate);
+    };
+  }, []);
 
   const navigation = [
     { name: "Game Map", href: "/map", icon: Star },
