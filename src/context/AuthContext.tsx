@@ -69,6 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePoints = (points: number) => {
     if (user) {
+      console.log(`Updating user points: ${user.points} + ${points} = ${user.points + points}`);
       const updatedUser = { ...user, points: user.points + points };
       saveUser(updatedUser);
     }

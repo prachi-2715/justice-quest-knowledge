@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGame, Question } from "@/context/GameContext";
@@ -58,14 +57,22 @@ const QuizLevel = () => {
     setIsCorrect(correct);
     
     if (correct) {
-      // Calculate points per correct answer (dividing level points by number of questions)
       const pointsPerQuestion = Math.floor(level.pointsToEarn / level.questions.length);
-      // Update local score for this session
-      setScore(score + 1);
-      // Update earned points for this session
-      setEarnedPoints(earnedPoints + pointsPerQuestion);
-      // Update user's points immediately for each correct answer
+      setScore(prevScore => prevScore + 1);
+      setEarnedPoints(prevPoints => prevPoints + pointsPerQuestion);
+      console.log("Updating points:", pointsPerQuestion);
       updatePoints(pointsPerQuestion);
+      toast({
+        title: "Correct Answer!",
+        description: `You earned ${pointsPerQuestion} points!`,
+        variant: "default"
+      });
+    } else {
+      toast({
+        title: "Incorrect Answer",
+        description: "Try to learn from the explanation provided.",
+        variant: "destructive"
+      });
     }
     
     updateQuestionStats(correct);
@@ -77,15 +84,11 @@ const QuizLevel = () => {
       setSelectedAnswer(null);
       setIsAnswered(false);
     } else {
-      // Quiz completed
-      const levelCompleted = score >= Math.ceil(level.questions.length / 2); // Pass if at least half correct
+      const levelCompleted = score >= Math.ceil(level.questions.length / 2);
       
       if (levelCompleted) {
-        // Instead of giving all points at once, we already updated points for each correct answer
-        // Just mark the level as completed now
         completeLevel(level.id);
         markLevelCompleted(level.id);
-        
         toast({
           title: "Level Completed!",
           description: `Congratulations! You earned ${earnedPoints} points!`,

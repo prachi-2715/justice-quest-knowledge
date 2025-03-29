@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,10 +24,11 @@ const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
 
-  useEffect(() => {
-    // In a real app, you would fetch leaderboard data from an API
-    // For now, we'll use sample data and add the current user
+  // Function to update leaderboard data
+  const updateLeaderboard = () => {
     if (user) {
+      console.log("Updating leaderboard with user points:", user.points);
+      
       const combinedData = [...sampleLeaderboard];
       
       // Check if user is already in the sample data (by id)
@@ -60,29 +62,17 @@ const Leaderboard = () => {
       const rank = sortedData.findIndex(entry => entry.id === user.id) + 1;
       setUserRank(rank);
     }
+  };
+
+  // Initial leaderboard setup
+  useEffect(() => {
+    updateLeaderboard();
   }, [user]);
 
   // Add a useEffect to reload leaderboard when user.points changes
   useEffect(() => {
     if (user) {
-      // Update the leaderboard when user points change
-      const updatedData = [...leaderboardData];
-      const userIndex = updatedData.findIndex(entry => entry.id === user.id);
-      
-      if (userIndex !== -1) {
-        updatedData[userIndex] = {
-          ...updatedData[userIndex],
-          points: user.points,
-          levelsCompleted: user.levelsCompleted.length
-        };
-        
-        // Resort and update ranks
-        const sortedData = updatedData.sort((a, b) => b.points - a.points);
-        setLeaderboardData(sortedData);
-        
-        const newRank = sortedData.findIndex(entry => entry.id === user.id) + 1;
-        setUserRank(newRank);
-      }
+      updateLeaderboard();
     }
   }, [user?.points, user?.levelsCompleted]);
 
