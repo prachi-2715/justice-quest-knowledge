@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGame, Question } from "@/context/GameContext";
@@ -10,7 +11,7 @@ import { CheckCircle, XCircle, HelpCircle, ArrowRight } from "lucide-react";
 
 const QuizLevel = () => {
   const { levelId } = useParams<{ levelId: string }>();
-  const { levels, setCurrentLevel, markLevelCompleted } = useGame();
+  const { levels, setCurrentLevel, markLevelCompleted, getQuestionsForCurrentAge } = useGame();
   const { updatePoints, completeLevel, updateQuestionStats } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const QuizLevel = () => {
   const [score, setScore] = useState<number>(0);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [earnedPoints, setEarnedPoints] = useState<number>(0);
+  const [questions, setQuestions] = useState<Question[]>([]);
   
   const level = levels.find(l => l.id === Number(levelId));
   
@@ -41,12 +43,15 @@ const QuizLevel = () => {
       return;
     }
     
+    // Get the appropriate questions based on user's age group
+    const ageAppropriateQuestions = getQuestionsForCurrentAge(level);
+    setQuestions(ageAppropriateQuestions);
     setCurrentLevel(level);
-  }, [level, levelId, navigate, setCurrentLevel, toast]);
+  }, [level, levelId, navigate, setCurrentLevel, toast, getQuestionsForCurrentAge]);
   
-  if (!level) return null;
+  if (!level || !questions.length) return null;
   
-  const question: Question = level.questions[currentQuestion];
+  const question: Question = questions[currentQuestion];
   
   const handleSelectAnswer = (index: number) => {
     if (isAnswered) return;
@@ -57,7 +62,7 @@ const QuizLevel = () => {
     setIsCorrect(correct);
     
     if (correct) {
-      const pointsPerQuestion = Math.floor(level.pointsToEarn / level.questions.length);
+      const pointsPerQuestion = Math.floor(level.pointsToEarn / questions.length);
       setScore(prevScore => prevScore + 1);
       setEarnedPoints(prevPoints => prevPoints + pointsPerQuestion);
       console.log("Updating points:", pointsPerQuestion);
@@ -79,12 +84,12 @@ const QuizLevel = () => {
   };
   
   const handleNextQuestion = () => {
-    if (currentQuestion < level.questions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setIsAnswered(false);
     } else {
-      const levelCompleted = score >= Math.ceil(level.questions.length / 2);
+      const levelCompleted = score >= Math.ceil(questions.length / 2);
       
       if (levelCompleted) {
         completeLevel(level.id);
@@ -110,7 +115,7 @@ const QuizLevel = () => {
     navigate("/map");
   };
   
-  const progress = ((currentQuestion + 1) / level.questions.length) * 100;
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
   
   return (
     <div className="container max-w-3xl mx-auto p-4">
@@ -119,8 +124,8 @@ const QuizLevel = () => {
           <div className="flex flex-col space-y-2">
             <h1 className="text-2xl font-bold">Level {level.id}: {level.name}</h1>
             <div className="flex items-center justify-between">
-              <p className="text-muted-foreground">Question {currentQuestion + 1} of {level.questions.length}</p>
-              <p className="text-muted-foreground">Score: {score}/{level.questions.length}</p>
+              <p className="text-muted-foreground">Question {currentQuestion + 1} of {questions.length}</p>
+              <p className="text-muted-foreground">Score: {score}/{questions.length}</p>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
@@ -195,7 +200,7 @@ const QuizLevel = () => {
                 onClick={handleNextQuestion}
                 disabled={!isAnswered}
               >
-                {currentQuestion < level.questions.length - 1 ? (
+                {currentQuestion < questions.length - 1 ? (
                   <span className="flex items-center">Next Question <ArrowRight className="ml-2 h-4 w-4" /></span>
                 ) : (
                   "See Results"
@@ -209,14 +214,14 @@ const QuizLevel = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Level {level.id} Results</CardTitle>
             <CardDescription>
-              You answered {score} out of {level.questions.length} questions correctly
+              You answered {score} out of {questions.length} questions correctly
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-center my-6">
               <div className="relative w-32 h-32 flex items-center justify-center rounded-full bg-muted">
                 <div className="text-3xl font-bold">
-                  {Math.round((score / level.questions.length) * 100)}%
+                  {Math.round((score / questions.length) * 100)}%
                 </div>
                 <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100">
                   <circle 
@@ -228,13 +233,13 @@ const QuizLevel = () => {
                     cy="50"
                   />
                   <circle 
-                    className={`${score >= Math.ceil(level.questions.length / 2) ? "text-justice-green" : "text-destructive"} stroke-current`}
+                    className={`${score >= Math.ceil(questions.length / 2) ? "text-justice-green" : "text-destructive"} stroke-current`}
                     strokeWidth="5" 
                     fill="transparent" 
                     r="45" 
                     cx="50" 
                     cy="50"
-                    strokeDasharray={`${(score / level.questions.length) * 283} 283`}
+                    strokeDasharray={`${(score / questions.length) * 283} 283`}
                     strokeDashoffset="0" 
                     strokeLinecap="round"
                     transform="rotate(-90 50 50)"
@@ -244,7 +249,7 @@ const QuizLevel = () => {
             </div>
             
             <div className="p-4 rounded-lg bg-muted">
-              {score >= Math.ceil(level.questions.length / 2) ? (
+              {score >= Math.ceil(questions.length / 2) ? (
                 <div className="flex items-start gap-2">
                   <CheckCircle className="h-5 w-5 text-justice-green mt-1" />
                   <div>
@@ -260,7 +265,7 @@ const QuizLevel = () => {
                   <div>
                     <h3 className="font-medium text-destructive">Level Not Completed</h3>
                     <p className="text-muted-foreground">
-                      You need to answer at least {Math.ceil(level.questions.length / 2)} questions correctly to complete this level. Try again!
+                      You need to answer at least {Math.ceil(questions.length / 2)} questions correctly to complete this level. Try again!
                     </p>
                   </div>
                 </div>
