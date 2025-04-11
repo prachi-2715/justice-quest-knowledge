@@ -8,6 +8,7 @@ import {
   Users, 
   Star,
   ListOrdered,
+  Film
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -59,6 +60,7 @@ const Navbar = () => {
   const navigation = [
     { name: "Game Map", href: "/map", icon: Star },
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Videos", href: "/videos", icon: Film },
     { name: "Leaderboard", href: "/leaderboard", icon: ListOrdered },
     { name: "Community", href: "/community", icon: Users },
     { name: "Chatbot", href: "/chatbot", icon: User },

@@ -16,6 +16,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Community from "./pages/Community";
 import QuizLevel from "./pages/QuizLevel";
 import Chatbot from "./pages/Chatbot";
+import VideoLibrary from "./pages/VideoLibrary";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/layouts/MainLayout";
 
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/community" element={<Community />} />
                 <Route path="/level/:levelId" element={<QuizLevel />} />
                 <Route path="/chatbot" element={<Chatbot />} />
+                <Route path="/videos" element={<VideoLibrary />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
