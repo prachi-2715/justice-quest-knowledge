@@ -5,10 +5,15 @@ import { useAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const MainLayout = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  // If authenticated but no age group selected, redirect to age selection
+  if (!user?.ageGroup) {
+    return <Navigate to="/age-selection" replace />;
   }
 
   return (

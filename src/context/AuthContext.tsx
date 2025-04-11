@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type User = {
@@ -9,6 +8,7 @@ type User = {
   levelsCompleted: number[];
   questionsAnswered: number;
   correctAnswers: number;
+  ageGroup?: string;
 };
 
 type AuthContextType = {
@@ -19,6 +19,7 @@ type AuthContextType = {
   updatePoints: (points: number) => void;
   completeLevel: (levelId: number) => void;
   updateQuestionStats: (correct: boolean) => void;
+  setAgeGroup: (ageGroup: string) => void;
 };
 
 const defaultUser: User = {
@@ -28,7 +29,8 @@ const defaultUser: User = {
   points: 0,
   levelsCompleted: [],
   questionsAnswered: 0,
-  correctAnswers: 0
+  correctAnswers: 0,
+  ageGroup: ''
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Load user from localStorage if available
     const savedUser = localStorage.getItem('justiceUser');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -47,7 +48,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const saveUser = (updatedUser: User) => {
-    // Ensure all user properties are correctly typed
     const sanitizedUser = {
       ...updatedUser,
       points: Number(updatedUser.points),
@@ -75,29 +75,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false);
   };
 
+  const setAgeGroup = (ageGroup: string) => {
+    if (user) {
+      const updatedUser = {
+        ...user,
+        ageGroup
+      };
+      saveUser(updatedUser);
+      
+      window.dispatchEvent(new CustomEvent('userAgeGroupSet', { 
+        detail: { ageGroup }
+      }));
+    }
+  };
+
   const updatePoints = (points: number) => {
     if (user) {
-      // Ensure we're working with numbers
       const currentPoints = Number(user.points);
       const pointsToAdd = Number(points);
       const newTotal = currentPoints + pointsToAdd;
       
       console.log(`Updating user points: ${currentPoints} + ${pointsToAdd} = ${newTotal}`);
       
-      // Create a new user object with updated points
       const updatedUser = { 
         ...user, 
         points: newTotal 
       };
       
-      // Save to localStorage and update state
       saveUser(updatedUser);
       
-      // Force update localStorage
       const userString = JSON.stringify(updatedUser);
       localStorage.setItem('justiceUser', userString);
       
-      // Dispatch a custom event to notify other components
       window.dispatchEvent(new CustomEvent('userPointsUpdated', { 
         detail: { points: newTotal }
       }));
@@ -106,7 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const completeLevel = (levelId: number) => {
     if (user) {
-      // Only add to completed levels if not already there
       if (!user.levelsCompleted.includes(levelId)) {
         const updatedUser = { 
           ...user, 
@@ -115,7 +123,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         saveUser(updatedUser);
         console.log(`Level ${levelId} completed and saved to user profile`);
         
-        // Dispatch a custom event to notify other components
         window.dispatchEvent(new CustomEvent('userLevelCompleted', { 
           detail: { levelId, levelsCompleted: updatedUser.levelsCompleted }
         }));
@@ -132,7 +139,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       saveUser(updatedUser);
       
-      // Dispatch a custom event to notify other components
       window.dispatchEvent(new CustomEvent('userStatsUpdated'));
     }
   };
@@ -145,7 +151,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout, 
       updatePoints, 
       completeLevel,
-      updateQuestionStats
+      updateQuestionStats,
+      setAgeGroup
     }}>
       {children}
     </AuthContext.Provider>
