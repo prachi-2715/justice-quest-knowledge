@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { GameProvider } from "./context/GameContext";
 
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import AgeSelection from "./pages/AgeSelection";
 import GameMap from "./pages/GameMap";
 import Dashboard from "./pages/Dashboard";
@@ -30,6 +31,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
               <Route path="/age-selection" element={<AgeSelection />} />
               <Route path="/" element={<MainLayout />}>
                 <Route path="/map" element={<GameMap />} />

@@ -9,7 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      user_progress: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          id: string
+          level_id: number
+          points_earned: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          level_id: number
+          points_earned?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          level_id?: number
+          points_earned?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          correct_answers: number | null
+          created_at: string | null
+          id: string
+          incorrect_answers: number | null
+          last_played: string | null
+          levels_completed: number | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          correct_answers?: number | null
+          created_at?: string | null
+          id?: string
+          incorrect_answers?: number | null
+          last_played?: string | null
+          levels_completed?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          correct_answers?: number | null
+          created_at?: string | null
+          id?: string
+          incorrect_answers?: number | null
+          last_played?: string | null
+          levels_completed?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
