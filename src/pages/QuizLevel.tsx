@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGame, Question } from "@/context/GameContext";
@@ -11,7 +10,7 @@ import { CheckCircle, XCircle, HelpCircle, ArrowRight } from "lucide-react";
 
 const QuizLevel = () => {
   const { levelId } = useParams<{ levelId: string }>();
-  const { levels, setCurrentLevel, markLevelCompleted, getQuestionsForCurrentAge } = useGame();
+  const { levels, setCurrentLevel, markLevelCompleted, getAgeAppropriateQuestions } = useGame();
   const { updatePoints, completeLevel, updateQuestionStats } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -43,11 +42,9 @@ const QuizLevel = () => {
       return;
     }
     
-    // Get the appropriate questions based on user's age group
-    const ageAppropriateQuestions = getQuestionsForCurrentAge(level);
-    setQuestions(ageAppropriateQuestions);
+    setQuestions(level.questions);
     setCurrentLevel(level);
-  }, [level, levelId, navigate, setCurrentLevel, toast, getQuestionsForCurrentAge]);
+  }, [level, levelId, navigate, setCurrentLevel, toast]);
   
   if (!level || !questions.length) return null;
   

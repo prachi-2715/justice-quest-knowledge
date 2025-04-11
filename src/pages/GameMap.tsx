@@ -30,20 +30,6 @@ const GameMap = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Update levels locked/unlocked state based on user progress
-    if (user && user.levelsCompleted) {
-      user.levelsCompleted.forEach(levelId => {
-        const levelIndex = levels.findIndex(level => level.id === levelId);
-        if (levelIndex !== -1 && levelIndex < levels.length - 1) {
-          // Unlock the next level
-          const nextLevelId = levels[levelIndex + 1].id;
-          // Here you would call unlockLevel but we're not persisting this change
-        }
-      });
-    }
-  }, [user, levels]);
-
   const handleLevelSelect = (level: any) => {
     if (level.isLocked) return;
     
@@ -69,7 +55,9 @@ const GameMap = () => {
       <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold mb-2">Rights Adventure Map</h1>
         <p className="text-muted-foreground">
-          Explore different areas to learn about your rights. Complete challenges to unlock new areas!
+          {user?.ageGroup === "5-10" 
+            ? "Help the candy characters learn about rights! Complete sweet challenges to unlock new areas!"
+            : "Explore different areas to learn about your rights. Complete challenges to unlock new levels!"}
         </p>
       </div>
 
@@ -247,7 +235,7 @@ const GameMap = () => {
                       <Cookie className="h-4 w-4 text-justice-brown" />
                       Questions:
                     </span>
-                    <span className="font-medium">{level.questions.younger.length}</span>
+                    <span className="font-medium">{level.questions.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1">
