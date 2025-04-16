@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -22,6 +22,32 @@ const Navbar = () => {
   useEffect(() => {
     if (user) {
       setUserPoints(Number(user.points));
+      
+      // Fetch latest user data from Supabase
+      const fetchLatestUserStats = async () => {
+        try {
+          const { data: statsData, error } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+            
+          if (error) {
+            console.error("Error fetching user stats:", error);
+            return;
+          }
+          
+          if (statsData) {
+            // Update points from the database
+            setUserPoints(statsData.total_points || 0);
+            console.log("Navbar: Updated points from Supabase:", statsData.total_points);
+          }
+        } catch (error) {
+          console.error("Error in fetchLatestUserStats:", error);
+        }
+      };
+      
+      fetchLatestUserStats();
       
       // Also check localStorage directly to ensure we have latest data
       const savedUser = localStorage.getItem('justiceUser');

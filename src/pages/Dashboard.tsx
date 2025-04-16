@@ -1,10 +1,10 @@
-
 import { useAuth } from "@/context/AuthContext";
 import { useGame } from "@/context/GameContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, Star, User, ListOrdered, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -12,11 +12,37 @@ const Dashboard = () => {
   const [userPoints, setUserPoints] = useState(0);
   const [completedLevels, setCompletedLevels] = useState<number[]>([]);
   
-  // Initialize user data
+  // Initialize user data and fetch the latest data from Supabase
   useEffect(() => {
     if (user) {
       setUserPoints(Number(user.points));
       setCompletedLevels(user.levelsCompleted);
+      
+      // Fetch latest user data from Supabase
+      const fetchLatestUserStats = async () => {
+        try {
+          const { data: statsData, error } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+            
+          if (error) {
+            console.error("Error fetching user stats:", error);
+            return;
+          }
+          
+          if (statsData) {
+            // Update points from the database
+            setUserPoints(statsData.total_points || 0);
+            console.log("Updated points from Supabase:", statsData.total_points);
+          }
+        } catch (error) {
+          console.error("Error in fetchLatestUserStats:", error);
+        }
+      };
+      
+      fetchLatestUserStats();
     }
   }, [user]);
   
