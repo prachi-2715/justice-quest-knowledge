@@ -33,14 +33,14 @@ const VideoLibrary = () => {
   const [selectedVideo, setSelectedVideo] = useState<EducationalVideo | null>(null);
   const [playing, setPlaying] = useState(false);
 
-  // Mock educational videos data
+  // Mock educational videos data with updated working video URLs
   const educationalVideos: EducationalVideo[] = [
     {
       id: 1,
       title: "What Are Rights?",
       description: "A fun introduction to understanding what rights are and why they're important for everyone.",
       thumbnailUrl: "https://placehold.co/320x180/justice-red/white?text=Video+1",
-      videoUrl: "https://www.youtube.com/embed/pOH0I4zDieM",
+      videoUrl: "https://www.youtube.com/embed/VnyaVGk0M6g",
       category: "Basic Rights",
       ageGroup: ["5-10", "11-14"],
       duration: "3:24",
@@ -51,7 +51,7 @@ const VideoLibrary = () => {
       title: "The Right to Education",
       description: "Learn why every child has the right to go to school and learn.",
       thumbnailUrl: "https://placehold.co/320x180/justice-blue/white?text=Video+2",
-      videoUrl: "https://www.youtube.com/embed/Y6gMRJz7v0s",
+      videoUrl: "https://www.youtube.com/embed/V1BFLitBkco",
       category: "Education Rights",
       ageGroup: ["5-10", "11-14"],
       duration: "4:12",
@@ -62,7 +62,7 @@ const VideoLibrary = () => {
       title: "Rights and Responsibilities",
       description: "With rights come responsibilities. Learn how they work together!",
       thumbnailUrl: "https://placehold.co/320x180/justice-green/white?text=Video+3",
-      videoUrl: "https://www.youtube.com/embed/TyP09S0UEzA",
+      videoUrl: "https://www.youtube.com/embed/LQpVs2w1Lyw",
       category: "Responsibilities",
       ageGroup: ["5-10", "11-14", "15-18"],
       duration: "5:07",
@@ -73,7 +73,7 @@ const VideoLibrary = () => {
       title: "Freedom of Expression",
       description: "Understanding how to express yourself and respect others' opinions.",
       thumbnailUrl: "https://placehold.co/320x180/justice-orange/white?text=Video+4",
-      videoUrl: "https://www.youtube.com/embed/5TPJPzY5dRw",
+      videoUrl: "https://www.youtube.com/embed/zc_1ELOJx6s",
       category: "Expression Rights",
       ageGroup: ["11-14", "15-18"],
       duration: "3:58",
@@ -84,7 +84,7 @@ const VideoLibrary = () => {
       title: "The Right to Play",
       description: "Why playing and having fun is actually one of your important rights!",
       thumbnailUrl: "https://placehold.co/320x180/justice-red/white?text=Video+5",
-      videoUrl: "https://www.youtube.com/embed/uMYLDjSORpQ",
+      videoUrl: "https://www.youtube.com/embed/HRE0E91EaWs",
       category: "Play Rights",
       ageGroup: ["5-10", "11-14"],
       duration: "3:15",
@@ -95,7 +95,7 @@ const VideoLibrary = () => {
       title: "Privacy Rights",
       description: "Learn about your right to privacy and personal space.",
       thumbnailUrl: "https://placehold.co/320x180/justice-blue/white?text=Video+6",
-      videoUrl: "https://www.youtube.com/embed/dbDFe3fS7gM",
+      videoUrl: "https://www.youtube.com/embed/pbk9JHnrM0c",
       category: "Privacy",
       ageGroup: ["11-14", "15-18"],
       duration: "4:42",
@@ -182,6 +182,7 @@ const VideoLibrary = () => {
                 src={selectedVideo.videoUrl} 
                 className="w-full h-full" 
                 title={selectedVideo.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
             </div>
@@ -267,7 +268,7 @@ const VideoLibrary = () => {
             ))}
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };
