@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -19,8 +18,10 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
+  isAuthenticated: boolean; // Add isAuthenticated property
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>; // Add alias for register function
   logout: () => void;
   updateAgeGroup: (ageGroup: string) => void;
   updatePoints: (points: number) => void;
@@ -135,6 +136,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
+  // Add signup as an alias for register to maintain backward compatibility
+  const signup = register;
+  
   const logout = () => {
     setUser(null);
     navigate('/auth');
@@ -226,11 +230,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
+  // Compute isAuthenticated based on user state
+  const isAuthenticated = user !== null;
+  
   return (
     <AuthContext.Provider value={{ 
-      user, 
+      user,
+      isAuthenticated,
       login, 
-      register, 
+      register,
+      signup, // Add signup alias
       logout, 
       updateAgeGroup,
       updatePoints,
