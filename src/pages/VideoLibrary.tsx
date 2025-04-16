@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Card, 
@@ -28,10 +28,11 @@ interface EducationalVideo {
 }
 
 const VideoLibrary = () => {
-  const { user } = useAuth();
+  const { user, updatePoints } = useAuth();
   const { toast } = useToast();
   const [selectedVideo, setSelectedVideo] = useState<EducationalVideo | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [watchedVideos, setWatchedVideos] = useState<number[]>([]);
 
   // Mock educational videos data with updated working video URLs
   const educationalVideos: EducationalVideo[] = [
@@ -42,7 +43,7 @@ const VideoLibrary = () => {
       thumbnailUrl: "https://placehold.co/320x180/justice-red/white?text=Video+1",
       videoUrl: "https://www.youtube.com/embed/VnyaVGk0M6g",
       category: "Basic Rights",
-      ageGroup: ["5-10", "11-14"],
+      ageGroup: ["9-12", "12-16"],
       duration: "3:24",
       points: 50
     },
@@ -53,7 +54,7 @@ const VideoLibrary = () => {
       thumbnailUrl: "https://placehold.co/320x180/justice-blue/white?text=Video+2",
       videoUrl: "https://www.youtube.com/embed/V1BFLitBkco",
       category: "Education Rights",
-      ageGroup: ["5-10", "11-14"],
+      ageGroup: ["9-12", "12-16"],
       duration: "4:12",
       points: 75
     },
@@ -64,7 +65,7 @@ const VideoLibrary = () => {
       thumbnailUrl: "https://placehold.co/320x180/justice-green/white?text=Video+3",
       videoUrl: "https://www.youtube.com/embed/LQpVs2w1Lyw",
       category: "Responsibilities",
-      ageGroup: ["5-10", "11-14", "15-18"],
+      ageGroup: ["9-12", "12-16", "15-18"],
       duration: "5:07",
       points: 100
     },
@@ -75,7 +76,7 @@ const VideoLibrary = () => {
       thumbnailUrl: "https://placehold.co/320x180/justice-orange/white?text=Video+4",
       videoUrl: "https://www.youtube.com/embed/zc_1ELOJx6s",
       category: "Expression Rights",
-      ageGroup: ["11-14", "15-18"],
+      ageGroup: ["12-16", "15-18"],
       duration: "3:58",
       points: 85
     },
@@ -86,22 +87,41 @@ const VideoLibrary = () => {
       thumbnailUrl: "https://placehold.co/320x180/justice-red/white?text=Video+5",
       videoUrl: "https://www.youtube.com/embed/HRE0E91EaWs",
       category: "Play Rights",
-      ageGroup: ["5-10", "11-14"],
+      ageGroup: ["9-12", "12-16"],
       duration: "3:15",
       points: 60
     },
     {
       id: 6,
+      title: "Good Touch, Bad Touch",
+      description: "Learn about personal safety and understanding appropriate and inappropriate touches.",
+      thumbnailUrl: "https://placehold.co/320x180/justice-green/white?text=Video+6",
+      videoUrl: "https://www.youtube.com/embed/jS_c5bXVQ7s",
+      category: "Personal Safety",
+      ageGroup: ["9-12", "12-16"],
+      duration: "4:10",
+      points: 80
+    },
+    {
+      id: 7,
       title: "Privacy Rights",
       description: "Learn about your right to privacy and personal space.",
-      thumbnailUrl: "https://placehold.co/320x180/justice-blue/white?text=Video+6",
+      thumbnailUrl: "https://placehold.co/320x180/justice-blue/white?text=Video+7",
       videoUrl: "https://www.youtube.com/embed/pbk9JHnrM0c",
       category: "Privacy",
-      ageGroup: ["11-14", "15-18"],
+      ageGroup: ["12-16", "15-18"],
       duration: "4:42",
       points: 90
     }
   ];
+
+  // Load watched videos from localStorage
+  useEffect(() => {
+    const savedWatchedVideos = localStorage.getItem('watchedVideos');
+    if (savedWatchedVideos) {
+      setWatchedVideos(JSON.parse(savedWatchedVideos));
+    }
+  }, []);
 
   // Filter videos based on user's age group
   const filteredVideos = user?.ageGroup 
@@ -112,9 +132,6 @@ const VideoLibrary = () => {
     setSelectedVideo(video);
     setPlaying(true);
     
-    // In a real app, you might track that the user watched this video
-    // and award them points in Supabase
-
     toast({
       title: "Video Started!",
       description: `You'll earn ${video.points} points after watching.`,
@@ -125,8 +142,33 @@ const VideoLibrary = () => {
     setPlaying(false);
     setTimeout(() => setSelectedVideo(null), 300); // Delay to allow animation
     
-    if (selectedVideo) {
-      // Award points when video is closed (in a real app, you'd verify they actually watched it)
+    if (selectedVideo && !watchedVideos.includes(selectedVideo.id)) {
+      // Add to watched videos
+      const newWatchedVideos = [...watchedVideos, selectedVideo.id];
+      setWatchedVideos(newWatchedVideos);
+      localStorage.setItem('watchedVideos', JSON.stringify(newWatchedVideos));
+      
+      // Award points and update user's points in the AuthContext
+      updatePoints(selectedVideo.points);
+      
+      // Dispatch the event for other components to update
+      const pointsEvent = new CustomEvent('userPointsUpdated', { 
+        detail: { points: user!.points + selectedVideo.points } 
+      });
+      window.dispatchEvent(pointsEvent);
+      
+      // Update stats in local storage directly to ensure other components see the change
+      const savedUser = localStorage.getItem('justiceUser');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        parsedUser.points += selectedVideo.points;
+        localStorage.setItem('justiceUser', JSON.stringify(parsedUser));
+        
+        // Trigger a stats update event so other components refresh
+        const statsEvent = new CustomEvent('userStatsUpdated');
+        window.dispatchEvent(statsEvent);
+      }
+      
       toast({
         title: "Great job!",
         description: `You earned ${selectedVideo.points} points for watching this video.`,
@@ -232,6 +274,11 @@ const VideoLibrary = () => {
                         <Play className="h-6 w-6" />
                       </Button>
                     </div>
+                    {watchedVideos.includes(video.id) && (
+                      <div className="absolute top-2 right-2 bg-justice-green text-white text-xs font-bold py-1 px-2 rounded">
+                        Watched
+                      </div>
+                    )}
                   </div>
                   
                   <CardHeader className="pb-2">
@@ -255,7 +302,7 @@ const VideoLibrary = () => {
                         className="bg-justice-red hover:bg-justice-red/90"
                         onClick={() => handleWatchVideo(video)}
                       >
-                        Watch Now
+                        {watchedVideos.includes(video.id) ? "Watch Again" : "Watch Now"}
                       </Button>
                       <span className="flex items-center gap-1 font-medium">
                         <Star className="h-5 w-5 text-justice-orange" />

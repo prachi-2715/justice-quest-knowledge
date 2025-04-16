@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGame, Question } from "@/context/GameContext";
@@ -6,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle, XCircle, HelpCircle, ArrowRight } from "lucide-react";
+import { CheckCircle, XCircle, HelpCircle, ArrowRight, Play, BookOpen, Target, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 const QuizLevel = () => {
   const { levelId } = useParams<{ levelId: string }>();
@@ -23,6 +25,7 @@ const QuizLevel = () => {
   const [showResults, setShowResults] = useState<boolean>(false);
   const [earnedPoints, setEarnedPoints] = useState<number>(0);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [showIntro, setShowIntro] = useState<boolean>(true);
   
   const level = levels.find(l => l.id === Number(levelId));
   
@@ -108,11 +111,86 @@ const QuizLevel = () => {
     }
   };
   
+  const handleStartQuiz = () => {
+    setShowIntro(false);
+  };
+  
   const handleFinish = () => {
     navigate("/map");
   };
   
   const progress = ((currentQuestion + 1) / questions.length) * 100;
+  
+  if (showIntro) {
+    return (
+      <div className="container max-w-4xl mx-auto p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="border-2 overflow-hidden">
+            <div className="bg-gradient-to-r from-justice-red to-justice-orange h-32 flex items-center justify-center">
+              <h1 className="text-3xl font-bold text-white">Level {level.id}: {level.name}</h1>
+            </div>
+            
+            <CardHeader>
+              <CardDescription className="text-center text-base">
+                Complete this quiz to earn points and unlock the next level
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div className="bg-muted rounded-lg p-4 flex flex-col items-center text-center">
+                  <BookOpen className="h-8 w-8 text-justice-blue mb-2" />
+                  <h3 className="font-medium mb-1">Learn About</h3>
+                  <p className="text-sm text-muted-foreground">{level.description}</p>
+                </div>
+                
+                <div className="bg-muted rounded-lg p-4 flex flex-col items-center text-center">
+                  <Target className="h-8 w-8 text-justice-red mb-2" />
+                  <h3 className="font-medium mb-1">Quiz Details</h3>
+                  <p className="text-sm text-muted-foreground">{questions.length} questions to answer</p>
+                </div>
+                
+                <div className="bg-muted rounded-lg p-4 flex flex-col items-center text-center">
+                  <Star className="h-8 w-8 text-justice-orange mb-2" />
+                  <h3 className="font-medium mb-1">Points to Earn</h3>
+                  <p className="text-sm text-muted-foreground">Up to {level.pointsToEarn} points</p>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 rounded-lg p-4 border">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <HelpCircle className="h-5 w-5 mr-2 text-justice-blue" />
+                  How to play
+                </h3>
+                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                  <li>Read each question carefully before answering</li>
+                  <li>Select the best answer from the options provided</li>
+                  <li>Learn from the explanations after each question</li>
+                  <li>You need to answer at least {Math.ceil(questions.length / 2)} questions correctly to complete this level</li>
+                  <li>You'll earn points for each correct answer</li>
+                </ul>
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex justify-center pb-6">
+              <Button 
+                size="lg" 
+                className="bg-justice-red hover:bg-justice-red/90"
+                onClick={handleStartQuiz}
+              >
+                <Play className="mr-2 h-5 w-5" />
+                Start Quiz
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
   
   return (
     <div className="container max-w-3xl mx-auto p-4">
@@ -281,6 +359,7 @@ const QuizLevel = () => {
                 setScore(0);
                 setEarnedPoints(0);
                 setShowResults(false);
+                setShowIntro(true);
               }}
             >
               Try Again

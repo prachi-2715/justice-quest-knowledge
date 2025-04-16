@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -31,7 +30,7 @@ type GameContextType = {
   getAgeAppropriateQuestions: (level: Level) => Question[];
 };
 
-// Define our game levels and questions for younger children (5-10)
+// Define our game levels and questions for younger children (9-12)
 const youngerLevels: Level[] = [
   {
     id: 1,
@@ -47,24 +46,24 @@ const youngerLevels: Level[] = [
         text: "What right do all children have?",
         options: ["Play video games all day", "Go to school and learn", "Stay up late", "Eat candy for dinner"],
         correctAnswer: 1,
-        explanation: "Every child has the right to learn and go to school!",
+        explanation: "Every child has the right to education and learning!",
         rightInfo: "The UN says all children should be able to go to school and learn new things."
       },
       {
         id: 2,
-        text: "Who should help keep children safe?",
-        options: ["Only parents", "Only teachers", "Only police officers", "Everyone"],
-        correctAnswer: 3,
-        explanation: "Everyone should help keep children safe!",
-        rightInfo: "All grown-ups in society should protect children from harm."
+        text: "Which of these is an example of a 'good touch'?",
+        options: ["A touch that makes you uncomfortable", "A high-five from a friend", "A touch that someone asks you to keep secret", "A touch on private body parts"],
+        correctAnswer: 1,
+        explanation: "A high-five from a friend is an example of a good touch that is respectful and comfortable.",
+        rightInfo: "Good touches are those that make you feel safe, respected, and comfortable."
       },
       {
         id: 3,
-        text: "Children can share what they think about things that affect them.",
-        options: ["True", "False", "Only if they're older", "Only at school"],
-        correctAnswer: 0,
-        explanation: "True! Children can say what they think about things that affect them.",
-        rightInfo: "Children have the right to express their opinions about matters that concern them."
+        text: "What should you do if someone touches you in a way that makes you uncomfortable?",
+        options: ["Keep it a secret", "Think it's your fault", "Tell a trusted adult right away", "Just forget about it"],
+        correctAnswer: 2,
+        explanation: "Always tell a trusted adult if someone touches you in a way that makes you uncomfortable.",
+        rightInfo: "Your body belongs to you, and you have the right to be protected from harmful touches."
       },
       {
         id: 4,
@@ -76,11 +75,11 @@ const youngerLevels: Level[] = [
       },
       {
         id: 5,
-        text: "Children have the right to play and rest.",
-        options: ["True", "False", "Only after homework", "Only on weekends"],
-        correctAnswer: 0,
-        explanation: "True! Play and rest are important for all children.",
-        rightInfo: "Playing and resting help children grow healthy and happy."
+        text: "What is the right to education?",
+        options: ["The right to skip school whenever you want", "The right to choose your own teachers", "The right to learn and go to school", "The right to only study subjects you like"],
+        correctAnswer: 2,
+        explanation: "The right to education means every child has the right to learn and go to school.",
+        rightInfo: "Education helps children develop and prepare for their future."
       }
     ]
   },
@@ -188,7 +187,7 @@ const youngerLevels: Level[] = [
   }
 ];
 
-// Define our game levels and questions for older children (10-12)
+// Define our game levels and questions for older children (12-16)
 const olderLevels: Level[] = [
   {
     id: 1,
@@ -209,35 +208,35 @@ const olderLevels: Level[] = [
       },
       {
         id: 2,
-        text: "Who is responsible for protecting children's rights?",
-        options: ["Only parents", "Only teachers", "Only the government", "Everyone in society"],
-        correctAnswer: 3,
-        explanation: "Everyone in society has a responsibility to protect children's rights.",
-        rightInfo: "While parents, schools and governments have special duties, protecting children is everyone's responsibility."
+        text: "What is meant by 'inappropriate touch'?",
+        options: ["Any touch from a stranger", "A touch that makes you feel uncomfortable, confused or scared", "Only touches on private body parts", "Touches that happen by accident"],
+        correctAnswer: 1,
+        explanation: "Inappropriate touch is any touch that makes you feel uncomfortable, confused, or scared.",
+        rightInfo: "You have the right to say 'no' to any touch that doesn't feel right, regardless of who it comes from."
       },
       {
         id: 3,
-        text: "Children have the right to express their opinions about matters that affect them.",
-        options: ["True", "False", "Only if they're teenagers", "Only in school"],
-        correctAnswer: 0,
-        explanation: "True! Children have the right to express their opinions about matters affecting them.",
-        rightInfo: "Article 12 of the UN Convention on the Rights of the Child gives children the right to express their views."
+        text: "If someone touches you inappropriately, what should you do?",
+        options: ["Keep it a secret to avoid trouble", "Assume it was an accident and ignore it", "Tell a trusted adult immediately", "Only tell if it happens again"],
+        correctAnswer: 2,
+        explanation: "You should always tell a trusted adult immediately if someone touches you inappropriately.",
+        rightInfo: "Getting help is important, and it's never your fault if someone touches you inappropriately."
       },
       {
         id: 4,
         text: "Which of these is NOT a basic right of children?",
-        options: ["Health care", "Protection from harm", "Having the latest toys", "Nutritious food"],
+        options: ["Health care", "Protection from harm", "Having the latest smartphone", "Nutritious food"],
         correctAnswer: 2,
-        explanation: "Having the latest toys is not a basic right, but a want or desire.",
+        explanation: "Having the latest smartphone is not a basic right, but a want or desire.",
         rightInfo: "Basic rights include necessities like healthcare, protection, food, and shelter - not luxury items."
       },
       {
         id: 5,
-        text: "Children have the right to play and rest.",
-        options: ["True", "False", "Only after finishing homework", "Only on weekends"],
-        correctAnswer: 0,
-        explanation: "True! Play and rest are recognized rights of children.",
-        rightInfo: "Article 31 of the UN Convention recognizes the right of children to rest, leisure, play and recreational activities."
+        text: "Which of the following best describes the right to education?",
+        options: ["The right to learn only what interests you", "The right to access quality education that develops your abilities and talents", "The right to choose your own school", "The right to study only subjects you're good at"],
+        correctAnswer: 1,
+        explanation: "The right to education means access to quality education that develops your abilities and talents.",
+        rightInfo: "Education should help children develop to their fullest potential and prepare them for responsible citizenship."
       }
     ]
   },
@@ -355,15 +354,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getLevelsForAgeGroup = (): Level[] => {
     if (!user || !user.ageGroup) return olderLevels; // Default to older if no age group
     
-    const appropriateLevels = user.ageGroup === "5-10" 
+    const appropriateLevels = (user.ageGroup === "9-12") 
       ? youngerLevels 
       : olderLevels;
       
     // Update locked status based on user progress
     if (user && user.levelsCompleted && user.levelsCompleted.length > 0) {
       return appropriateLevels.map(level => {
-        const isCompleted = user.levelsCompleted.includes(level.id);
-        const shouldBeUnlocked = level.id === 1 || user.levelsCompleted.includes(level.id - 1);
+        // Only consider this age group's completed levels
+        // This ensures levels aren't marked as completed across age groups
+        const ageGroupLevelIds = user.ageGroupLevelsCompleted?.[user.ageGroup] || [];
+        const isCompleted = ageGroupLevelIds.includes(level.id);
+        const shouldBeUnlocked = level.id === 1 || ageGroupLevelIds.includes(level.id - 1);
         
         return {
           ...level,
