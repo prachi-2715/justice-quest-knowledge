@@ -28,7 +28,7 @@ const Leaderboard = () => {
   // Track user points separately to force re-renders
   useEffect(() => {
     if (user) {
-      setUserPoints(user.points);
+      setUserPoints(user.points || 0);
     }
   }, [user, user?.points]);
 
@@ -46,19 +46,19 @@ const Leaderboard = () => {
         // Update the existing entry
         combinedData[existingUserIndex] = {
           id: user.id,
-          name: user.name,
+          name: user.name || 'User',
           points: userPoints, // Use tracked points to ensure latest value
-          levelsCompleted: user.levelsCompleted.length,
-          avatar: user.avatar
+          levelsCompleted: user.levelsCompleted ? user.levelsCompleted.length : 0,
+          avatar: user.avatar || ""
         };
       } else {
         // Add user to combined data
         combinedData.push({
           id: user.id,
-          name: user.name,
+          name: user.name || 'User',
           points: userPoints, // Use tracked points to ensure latest value
-          levelsCompleted: user.levelsCompleted.length,
-          avatar: user.avatar
+          levelsCompleted: user.levelsCompleted ? user.levelsCompleted.length : 0,
+          avatar: user.avatar || ""
         });
       }
       
@@ -89,7 +89,7 @@ const Leaderboard = () => {
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
       if (parsedUser.points !== userPoints) {
-        setUserPoints(parsedUser.points);
+        setUserPoints(parsedUser.points || 0);
       }
     }
     updateLeaderboard();
@@ -118,13 +118,13 @@ const Leaderboard = () => {
               <div className="flex-1 flex items-center justify-between">
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={user?.avatar || ""} alt={user?.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={user?.avatar || ""} alt={user?.name || "User"} />
+                    <AvatarFallback>{user.name ? user.name.charAt(0) : "U"}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{user.name}</p>
+                    <p className="font-medium">{user.name || "User"}</p>
                     <p className="text-sm text-muted-foreground">
-                      {user.levelsCompleted.length} levels completed
+                      {user.levelsCompleted ? user.levelsCompleted.length : 0} levels completed
                     </p>
                   </div>
                 </div>
