@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/context/AuthContext";
 import { useGame } from "@/context/GameContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       setUserPoints(Number(user.points));
-      setCompletedLevels(user.levelsCompleted);
+      setCompletedLevels(user.levelsCompleted || []);
       
       // Fetch latest user data from Supabase
       const fetchLatestUserStats = async () => {
@@ -64,7 +65,7 @@ const Dashboard = () => {
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
         setUserPoints(Number(parsedUser.points));
-        setCompletedLevels(parsedUser.levelsCompleted);
+        setCompletedLevels(parsedUser.levelsCompleted || []);
       }
     };
     
@@ -77,7 +78,7 @@ const Dashboard = () => {
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
       setUserPoints(Number(parsedUser.points));
-      setCompletedLevels(parsedUser.levelsCompleted);
+      setCompletedLevels(parsedUser.levelsCompleted || []);
     }
     
     return () => {
@@ -171,11 +172,11 @@ const Dashboard = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Answered:</span>
-                <span className="font-medium">{user.questionsAnswered} questions</span>
+                <span className="font-medium">{user.questionsAnswered || 0} questions</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Correct:</span>
-                <span className="font-medium text-justice-green">{user.correctAnswers} ({accuracy}%)</span>
+                <span className="font-medium text-justice-green">{user.correctAnswers || 0} ({accuracy}%)</span>
               </div>
               <Progress value={accuracy} className="h-2 bg-muted" />
             </div>
@@ -193,10 +194,10 @@ const Dashboard = () => {
           <CardContent>
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 rounded-full bg-justice-red text-white flex items-center justify-center text-xl font-bold">
-                {user.name.charAt(0).toUpperCase()}
+                {user.name && user.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="font-medium">{user.name}</p>
+                <p className="font-medium">{user.name || 'User'}</p>
                 <p className="text-sm text-muted-foreground">
                   Justice Explorer
                 </p>

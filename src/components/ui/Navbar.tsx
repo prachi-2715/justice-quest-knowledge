@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,7 +54,7 @@ const Navbar = () => {
       const savedUser = localStorage.getItem('justiceUser');
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
-        setUserPoints(Number(parsedUser.points));
+        setUserPoints(Number(parsedUser.points || 0));
       }
     }
   }, [user, user?.points]);
@@ -70,7 +71,7 @@ const Navbar = () => {
       const savedUser = localStorage.getItem('justiceUser');
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
-        setUserPoints(Number(parsedUser.points));
+        setUserPoints(Number(parsedUser.points || 0));
       }
     };
     
@@ -123,11 +124,11 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8 border-2 border-white">
-              <AvatarImage src={user?.avatar || ""} alt={user?.name} />
-              <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+              <AvatarImage src={user?.avatar || ""} alt={user?.name || "User"} />
+              <AvatarFallback>{user?.name ? user.name.charAt(0) : "U"}</AvatarFallback>
             </Avatar>
             <div className="hidden md:block">
-              <div className="text-sm font-medium">{user?.name}</div>
+              <div className="text-sm font-medium">{user?.name || "User"}</div>
               <div className="text-xs">{userPoints} pts</div>
             </div>
           </div>
