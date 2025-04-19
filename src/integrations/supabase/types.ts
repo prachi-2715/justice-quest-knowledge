@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          age_group: string
+          avatar_url: string | null
+          created_at: string | null
+          id: string
+          total_points: number | null
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          age_group: string
+          avatar_url?: string | null
+          created_at?: string | null
+          id: string
+          total_points?: number | null
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          age_group?: string
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          total_points?: number | null
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           completed: boolean | null
